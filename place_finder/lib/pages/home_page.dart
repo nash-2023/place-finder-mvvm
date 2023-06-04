@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../services/webservice.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -52,6 +54,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void initState() {
+    _determinePosition();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: (myPosition == null)
@@ -64,14 +72,14 @@ class _HomePageState extends State<HomePage> {
                   },
                   initialCameraPosition: CameraPosition(
                     target: LatLng(mylat!, mylng!),
-                    zoom: 14,
+                    zoom: 18,
                   ),
                 ),
               ],
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          _determinePosition();
+          WebService.fetchPlaces(mylat!, mylng!);
         },
         child: const Icon(Icons.my_location),
       ),
