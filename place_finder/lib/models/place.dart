@@ -15,12 +15,15 @@ class Place {
 
   factory Place.fromJson(Map<String, dynamic> jsn) {
     final location = jsn["geometry"]["location"];
+    Iterable photos = jsn["photos"];
     return Place(
       placeID: jsn["place_id"],
       lat: location["lat"],
       lng: location["lng"],
       name: jsn["name"],
-      photoURL: jsn["photos"][0]["photo_reference"],
+      photoURL: photos.isEmpty
+          ? "images/mark.png"
+          : photos.first["photo_reference"].toString(),
     );
   }
 }
