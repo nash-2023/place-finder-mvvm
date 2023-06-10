@@ -17,6 +17,7 @@ class MainApp extends StatelessWidget {
         create: (context) => PlaceListViewModel(repo: WebService()),
         child: const HomePage(),
       ),
+      // home: HomeBeta(),
     );
   }
 }

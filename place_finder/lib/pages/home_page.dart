@@ -8,6 +8,7 @@ import '../services/fake_api.dart';
 import '../services/webservice.dart';
 import '../view_model/place_list_view_model.dart';
 import '../view_model/place_view_model.dart';
+import '../widgets/place_list.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -23,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   double? mylng; //my way
   Position? azzPosition;
 
-  void _getLocationPermession() async {
+  Future<bool> _getLocationPermession() async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -44,6 +45,7 @@ class _HomePageState extends State<HomePage> {
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
+    return true;
   }
 
 //my way
@@ -58,6 +60,7 @@ class _HomePageState extends State<HomePage> {
 */
   void _onMapCreated(GoogleMapController controller) async {
     _controller.complete(controller);
+    await _getLocationPermession();
     azzPosition = await Geolocator.getCurrentPosition();
     mylat = azzPosition!.latitude;
     mylng = azzPosition!.longitude;
@@ -71,7 +74,7 @@ class _HomePageState extends State<HomePage> {
               markerId: MarkerId(p.placeID),
               position: LatLng(p.lat, p.lng),
               icon: BitmapDescriptor.defaultMarker,
-              infoWindow: InfoWindow(title: p.name),
+              infoWindow: InfoWindow(title: "F@7y: ${p.name}"),
             ))
         .toSet();
     // return <Marker>{};
@@ -79,7 +82,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    _getLocationPermession();
+    // _getLocationPermession();
     super.initState();
   }
 
@@ -98,17 +101,47 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           SafeArea(
-            child: TextField(
-              onSubmitted: (value) {
-                vm.fetchPlacesByKeywordAndPosition(value, mylat!, mylng!);
-              },
-              decoration: const InputDecoration(
-                labelText: "Search Here",
-                fillColor: Colors.white,
-                filled: true,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                onSubmitted: (value) {
+                  vm.fetchPlacesByKeywordAndPosition(value, mylat!, mylng!);
+                },
+                decoration: const InputDecoration(
+                  labelText: "Search Here",
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
               ),
             ),
-          )
+          ),
+          Visibility(
+            visible: vm.places.isNotEmpty,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: MaterialButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                          context: context,
+                          builder: (context) {
+                            return PlaceList(
+                              places: vm.places,
+                            );
+                          });
+                    },
+                    color: Colors.grey,
+                    child: const Text(
+                      "Show List",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
