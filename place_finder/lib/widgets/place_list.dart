@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:place_finder/util/url_helper.dart';
 import 'package:place_finder/view_model/place_view_model.dart';
 
 class PlaceList extends StatelessWidget {
-  const PlaceList({super.key, required this.places});
+  const PlaceList({super.key, required this.places, required this.onSelected});
 
   final List<PlaceViewModel> places;
+  final Function(PlaceViewModel) onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +17,9 @@ class PlaceList extends StatelessWidget {
         final place = places[index];
 
         return ListTile(
+          onTap: () {
+            onSelected(place);
+          },
           title: Text(place.name),
           leading: Container(
             margin: const EdgeInsets.only(bottom: 5.0),

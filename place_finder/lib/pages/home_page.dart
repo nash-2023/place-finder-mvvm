@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:map_launcher/map_launcher.dart' as prefix0;
 import 'package:provider/provider.dart';
 
 import '../services/fake_api.dart';
@@ -93,6 +94,7 @@ class _HomePageState extends State<HomePage> {
       body: Stack(
         children: <Widget>[
           GoogleMap(
+            mapType: vm.mapType,
             markers: _getPlaceMarkers(vm.places),
             onMapCreated: _onMapCreated,
             initialCameraPosition: const CameraPosition(
@@ -129,6 +131,29 @@ class _HomePageState extends State<HomePage> {
                           builder: (context) {
                             return PlaceList(
                               places: vm.places,
+                              onSelected: (plc) async {
+                                bool? isGoogle =
+                                    await prefix0.MapLauncher.isMapAvailable(
+                                        prefix0.MapType.google);
+                                bool? isApple =
+                                    await prefix0.MapLauncher.isMapAvailable(
+                                        prefix0.MapType.apple);
+                                if (isGoogle!) {
+                                  await prefix0.MapLauncher.showMarker(
+                                    mapType: prefix0.MapType.google,
+                                    coords: prefix0.Coords(plc.lat, plc.lng),
+                                    title: plc.name,
+                                    description: plc.name,
+                                  );
+                                } else if (isApple!) {
+                                  await prefix0.MapLauncher.showMarker(
+                                    mapType: prefix0.MapType.apple,
+                                    coords: prefix0.Coords(plc.lat, plc.lng),
+                                    title: plc.name,
+                                    description: plc.name,
+                                  );
+                                }
+                              },
                             );
                           });
                     },
@@ -140,6 +165,15 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
+            ),
+          ),
+          Positioned(
+            top: 100,
+            right: 15,
+            child: FloatingActionButton(
+              onPressed: vm.toggleMapType,
+              // color: Colors.grey,
+              child: const Icon(Icons.map_outlined),
             ),
           ),
         ],
